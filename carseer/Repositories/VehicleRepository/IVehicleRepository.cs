@@ -6,6 +6,6 @@ namespace carseer.Repositories.VehicleRepository
     {
         Task<List<Make>> GetAllMakesAsync();
         Task<List<VehicleType>> GetVehicleTypesForMakeIdAsync(int makeId);
-        Task<List<Model>> GetModelsForMakeIdYearAsync(int makeId, int year, string vehicleType);
+        Task<List<Model>> GetModelsForMakeIdYearAsync(int makeId, int year,string vehicleType);
     }
 }

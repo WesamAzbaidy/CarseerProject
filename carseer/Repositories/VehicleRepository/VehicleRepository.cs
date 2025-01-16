@@ -17,14 +17,18 @@ namespace carseer.Repositories.VehicleRepository
             return JsonConvert.DeserializeObject<List<Make>>(data.Results.ToString());
         }
 
-        public Task<List<Model>> GetModelsForMakeIdYearAsync(int makeId, int year, string vehicleType)
+        public async Task<List<Model>> GetModelsForMakeIdYearAsync(int makeId, int year, string vehicleType)
         {
-            throw new NotImplementedException();
+            var response = await _httpClient.GetStringAsync($"https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeIdYear/makeId/{makeId}/modelyear/{year}?vehicletype={vehicleType}&format=json");
+            var data = JsonConvert.DeserializeObject<dynamic>(response);
+            return JsonConvert.DeserializeObject<List<Model>>(data.Results.ToString());
         }
 
-        public Task<List<VehicleType>> GetVehicleTypesForMakeIdAsync(int makeId)
+        public async Task<List<VehicleType>> GetVehicleTypesForMakeIdAsync(int makeId)
         {
-            throw new NotImplementedException();
+            var response = await _httpClient.GetStringAsync($"https://vpic.nhtsa.dot.gov/api/vehicles/GetVehicleTypesForMakeId/{makeId}?format=json");
+            var data = JsonConvert.DeserializeObject<dynamic>(response);
+            return JsonConvert.DeserializeObject<List<VehicleType>>(data.Results.ToString());
         }
     }
 }

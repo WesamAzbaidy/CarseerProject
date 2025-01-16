@@ -16,7 +16,7 @@ namespace carseer.Services
 
         public Task<List<VehicleType>> GetVehicleTypesForMakeIdAsync(int makeId) => _vehicleRepository.GetVehicleTypesForMakeIdAsync(makeId);
 
-        public Task<List<Model>> GetModelsForMakeIdYearAsync(int makeId, int year, string vehicleType) => _vehicleRepository.GetModelsForMakeIdYearAsync(makeId, year, vehicleType);
+        public Task<List<Model>> GetModelsForMakeIdYearAsync(int makeId, int year,string vehicleType) => _vehicleRepository.GetModelsForMakeIdYearAsync(makeId, year, vehicleType);
 
     }
 }
