@@ -2,7 +2,7 @@
 {
     public class Make
     {
-        public int MakeId { get; set; }
-        public string MakeName { get; set; }
+        public int Make_ID { get; set; }
+        public string Make_Name { get; set; }
     }
 }

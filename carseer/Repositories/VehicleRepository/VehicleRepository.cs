@@ -1,4 +1,5 @@
 ﻿using carseer.Models.Domain;
+using Newtonsoft.Json;
 
 namespace carseer.Repositories.VehicleRepository
 {
@@ -9,9 +10,11 @@ namespace carseer.Repositories.VehicleRepository
         public VehicleRepository(HttpClient httpClient) {
             this._httpClient = httpClient;
         }
-        public Task<List<Make>> GetAllMakesAsync()
+        public async Task<List<Make>> GetAllMakesAsync()
         {
-            throw new NotImplementedException();
+            var response = await _httpClient.GetStringAsync("https://vpic.nhtsa.dot.gov/api/vehicles/getallmakes?format=json");
+            var data = JsonConvert.DeserializeObject<dynamic>(response);
+            return JsonConvert.DeserializeObject<List<Make>>(data.Results.ToString());
         }
 
         public Task<List<Model>> GetModelsForMakeIdYearAsync(int makeId, int year, string vehicleType)
