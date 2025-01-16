@@ -21,22 +21,37 @@ namespace carseer.Controllers
             this.mapper = mapper;
         }
         [HttpGet("makes")]
-        public async Task<IActionResult> GetAllMakes()
+        public async Task<IActionResult> GetAllMakes([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string makeNameSearch = null)
         {
             try
             {
-                var makes = await vehicleService.GetAllMakesAsync();
+                var makes = await vehicleService.GetAllMakesAsync(page, pageSize, makeNameSearch);
                 var makeDTOs = mapper.Map<List<MakeDTO>>(makes);
-                var response = APIResponse<List<MakeDTO>>.SuccessResponse(makeDTOs);
-                return Ok(response);
+
+                // Fetch total count of makes (to calculate total pages)
+                var totalItems = await vehicleService.GetAllMakesAsync(1, int.MaxValue, makeNameSearch); // Get all items without pagination
+                var totalPages = (int)Math.Ceiling(totalItems.Count / (double)pageSize);
+
+                var response = new
+                {
+                    TotalItems = totalItems.Count,
+                    CurrentPage = page,
+                    PageSize = pageSize,
+                    TotalPages = totalPages,
+                    Data = makeDTOs
+                };
+
+                return Ok(APIResponse<object>.SuccessResponse(response));
             }
             catch (Exception ex)
             {
                 var errorMessage = $"An error occurred while fetching vehicle makes: {ex.Message}";
-                var response = APIResponse<List<MakeDTO>>.ErrorResponse(errorMessage);
-                return StatusCode(500, response); 
+                var response = APIResponse<object>.ErrorResponse(errorMessage);
+                return StatusCode(500, response);
             }
         }
+
+
 
         [HttpGet("{makeId}/types")]
         public async Task<IActionResult> GetVehicleTypesForMakeId(int makeId)
