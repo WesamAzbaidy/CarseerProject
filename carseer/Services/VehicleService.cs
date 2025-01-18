@@ -15,30 +15,29 @@ namespace carseer.Services
             this.memoryCache = memoryCache;
         }
 
-        public async Task<List<Make>> GetAllMakesAsync(int page, int pageSize, string makeNameSearch = null)
+        public async Task<List<Make>> GetAllMakesAsync(int size, string makeNameSearch = null)
         {
-            // Check if data is already in memory cache
             if (!memoryCache.TryGetValue("allMakes", out List<Make> allMakes))
             {
-                // If not, fetch data from the external API
                 allMakes = await _vehicleRepository.GetAllMakesAsync();
 
-                // Cache the data in memory for a certain period (e.g., 1 hour)
+                
                 var cacheExpirationOptions = new MemoryCacheEntryOptions()
                     .SetAbsoluteExpiration(TimeSpan.FromHours(1));
 
                 memoryCache.Set("allMakes", allMakes, cacheExpirationOptions);
             }
 
-            // Apply search filter if makeNameSearch is provided
+            
             if (!string.IsNullOrEmpty(makeNameSearch))
             {
-                allMakes = allMakes.Where(m => m.Make_Name.Contains(makeNameSearch, StringComparison.OrdinalIgnoreCase)).ToList();
+                allMakes = allMakes
+                    .Where(m => m.Make_Name.Contains(makeNameSearch, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
             }
 
-            // Apply pagination
-            var paginatedMakes = allMakes.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-            return paginatedMakes;
+            
+            return allMakes.Take(size).ToList();
         }
 
         public Task<List<VehicleType>> GetVehicleTypesForMakeIdAsync(int makeId) => _vehicleRepository.GetVehicleTypesForMakeIdAsync(makeId);
