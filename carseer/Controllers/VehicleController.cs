@@ -66,25 +66,49 @@ namespace carseer.Controllers
         }
 
         [HttpGet("models")]
-        public async Task<IActionResult> GetModelsForMakeIdYear([FromQuery] int makeId, [FromQuery] int year, [FromQuery] string vehicleType)
+        public async Task<IActionResult> GetModelsForMakeIdYear(
+     [FromQuery] int makeId,
+     [FromQuery] int year,
+     [FromQuery] string vehicleType,
+     [FromQuery] int pageNumber = 1,
+     [FromQuery] int pageSize = 5)
         {
             try
             {
-                var models = await vehicleService.GetModelsForMakeIdYearAsync(makeId, year,vehicleType);
+                if (pageNumber <= 0 || pageSize <= 0)
+                {
+                    return BadRequest(APIResponse<string>.ErrorResponse("Page number and page size must be greater than zero.", 400));
+                }
+
+                var (models, totalCount) = await vehicleService.GetModelsForMakeIdYearAsync(makeId, year, vehicleType, pageNumber, pageSize);
+
                 if (models == null || !models.Any())
                 {
-                    return NotFound(APIResponse<List<ModelDTO>>.ErrorResponse("No models found for the given criteria.", 404));
+                    return NotFound(APIResponse<object>.ErrorResponse("No models found for the given criteria.", 404));
                 }
+
                 var modelDTOs = mapper.Map<List<ModelDTO>>(models);
-                var response = APIResponse<List<ModelDTO>>.SuccessResponse(modelDTOs);
-                return Ok(response);
+
+                var response = new
+                {
+                    TotalCount = totalCount,
+                    NumberOfItems = modelDTOs.Count,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
+                    Data = modelDTOs
+                };
+
+                return Ok(APIResponse<object>.SuccessResponse(response));
             }
             catch (Exception ex)
             {
                 var errorMessage = $"An error occurred while fetching models: {ex.Message}";
-                var response = APIResponse<List<ModelDTO>>.ErrorResponse(errorMessage);
+                var response = APIResponse<string>.ErrorResponse(errorMessage);
                 return StatusCode(500, response);
             }
         }
+
+
     }
 }

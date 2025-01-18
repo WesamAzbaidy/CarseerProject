@@ -42,7 +42,21 @@ namespace carseer.Services
 
         public Task<List<VehicleType>> GetVehicleTypesForMakeIdAsync(int makeId) => _vehicleRepository.GetVehicleTypesForMakeIdAsync(makeId);
 
-        public Task<List<Model>> GetModelsForMakeIdYearAsync(int makeId, int year,string vehicleType) => _vehicleRepository.GetModelsForMakeIdYearAsync(makeId, year, vehicleType);
+        public async Task<(List<Model> Models, int TotalCount)> GetModelsForMakeIdYearAsync(int makeId, int year, string vehicleType, int pageNumber, int pageSize)
+        {
+            var allModels = await _vehicleRepository.GetModelsForMakeIdYearAsync(makeId, year, vehicleType);
+
+            // Total count before pagination
+            int totalCount = allModels.Count;
+
+            // Apply pagination
+            var pagedModels = allModels
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            return (pagedModels, totalCount);
+        }
 
 
     }
